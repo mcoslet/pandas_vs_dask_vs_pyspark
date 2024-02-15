@@ -12,5 +12,7 @@ def timeit_decorator(executions=100):
             time = timeit.timeit(lambda: func(*args, **kwargs), number=executions)
             print(f"Average execution time over {executions} executions: {time / executions} seconds")
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator
