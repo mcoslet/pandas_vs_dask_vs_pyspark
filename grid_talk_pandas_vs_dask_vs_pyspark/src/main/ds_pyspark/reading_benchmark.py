@@ -37,6 +37,7 @@ def read_parquet_with_spark_inferschema_false(schema: StructType):
 
 @timeit_decorator()
 def count_memory(df: DataFrame):
+    print("Count memory: ")
     df = df.cache().select(df.columns)
     size_in_bytes = df._jdf.queryExecution().optimizedPlan().stats().sizeInBytes()
     df.unpersist(blocking=True)
@@ -70,23 +71,35 @@ if __name__ == "__main__":
         StructField("Diverted", IntegerType(), True)
     ])
 
-    df = read_csv(infer_schema=True)
-    print(f"Reading Performance Benchmark PySpark for dataset with shape: {(df.count(), len(df.columns))}")
+    df_csv_infer_schema = read_csv(infer_schema=True)
+    df_csv_with_schema = read_csv(schema=schema)
+    df_json_infer_schema = read_json(infer_schema=True)
+    df_json_with_schema = read_json(schema=schema)
+    df_parquet_infer_schema = read_parquet(infer_schema=True)
+    df_parquet_with_schema = read_parquet(schema=schema)
+
+    print(f"Reading Performance Benchmark PySpark for dataset with shape: {(df_csv_infer_schema.count(), len(df_csv_infer_schema.columns))}")
 
     print("read_csv_with_spark_inferschema_true: ")
     read_csv_with_spark_inferschema_true()
+    count_memory(df_csv_infer_schema)
 
     print("read_csv_with_spark_inferschema_false: ")
     read_csv_with_spark_inferschema_false(schema=schema)
+    count_memory(df_csv_with_schema)
 
     print("read_json_with_spark_inferschema_true: ")
     read_json_with_spark_inferschema_false()
+    count_memory(df_json_infer_schema)
 
     print("read_json_with_spark_inferschema_false: ")
     read_json_with_spark_inferschema_false(schema=schema)
+    count_memory(df_json_with_schema)
 
     print("read_parquet_with_spark_inferschema_true: ")
     read_parquet_with_spark_inferschema_true()
+    count_memory(df_parquet_infer_schema)
 
     print("read_parquet_with_spark_inferschema_false: ")
     read_parquet_with_spark_inferschema_false(schema=schema)
+    count_memory(df_parquet_with_schema)

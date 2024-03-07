@@ -40,6 +40,7 @@ def read_parquet_with_dask_pyarrow_engine(compute=False):
 
 
 def count_memory(df: dd.DataFrame):
+    print("Count memory: ")
     memory_per_column = df.memory_usage(deep=True)
     total_memory = round(memory_per_column.compute().sum() / (2 ** 20))
     print(memory_per_column.compute())
@@ -50,7 +51,8 @@ if __name__ == "__main__":
     py_arrow_csv_df = read_csv(True)
     default_csv_df = read_csv()
 
-    default_json_df = read_json(True)
+    py_arrow_json_df = read_json(True)
+    default_json_df = read_json()
 
     py_arrow_parquet_df = read_parquet(True)
     default_parquet_df = read_parquet()
@@ -72,9 +74,11 @@ if __name__ == "__main__":
 
     print("read_json_with_pyarrow_engine: ")
     read_json_with_dask_pyarrow_engine()
+    count_memory(py_arrow_json_df)
 
     print("read_json_with_dask_default_engine: ")
     read_json_with_dask_engine()
+    count_memory(default_json_df)
 
     print("read_json_with_pyarrow_engine, compute True: ")
     read_json_with_dask_pyarrow_engine(compute=True)
@@ -84,9 +88,11 @@ if __name__ == "__main__":
 
     print("read_parquet_with_dask_pyarrow_engine: ")
     read_parquet_with_dask_pyarrow_engine()
+    count_memory(py_arrow_parquet_df)
 
     print("read_parquet_with_dask_default_engine: ")
     read_parquet_with_dask_default_engine()
+    count_memory(default_parquet_df)
 
     print("read_parquet_with_dask_pyarrow_engine, compute True: ")
     read_parquet_with_dask_pyarrow_engine(compute=True)
