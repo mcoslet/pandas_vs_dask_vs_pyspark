@@ -7,13 +7,16 @@ from glob import glob
 import tarfile
 import urllib.request
 
+from numpy.random import default_rng
 import pandas as pd
 import dask.array as da
+from faker import Faker
 
 from src.main.a_utils.constants import LocalData
 
-DATASETS = ["random", "flights", "all"]
-data_dir = os.path.join(LocalData.RESOURCES_DIR, "data")
+DATASETS = ["synthetic", "flights", "all"]
+FILE_EXTENSIONS = ["csv", "json", "parquet"]
+data_dir = LocalData.DATA_DIR
 
 
 def parse_args(args=None):
@@ -28,6 +31,12 @@ def parse_args(args=None):
     )
     parser.add_argument(
         "-d", "--dataset", choices=DATASETS, help="Datasets to generate.", default="all"
+    )
+    parser.add_argument(
+        "-fe", "--file_extension",
+        choices=FILE_EXTENSIONS,
+        help="File extension to save the dataset",
+        default="csv"
     )
 
     return parser.parse_args(args)
@@ -107,38 +116,38 @@ def flights(small=None):
     print("** Created flights dataset! in {:0.2f}s**".format(end - start))
 
 
-def random_array(small=None):
-    if small is None:
-        small = bool(os.environ.get("SMALL_DF", False))
-
-    t0 = time.time()
-    print("- Generating random array data... ", end="", flush=True)
-    if os.path.exists(os.path.join(data_dir, "random.zarr")) and os.path.exists(
-            os.path.join(data_dir, "random_sc.zarr")
-    ):
-        return
-
+def create_synthetic_dataset(small):
+    start = time.time()
     if small:
-        size = 20_000_000
-        random_arr = da.random.random(size=(size,), chunks=(625000,))
-        random_arr_small_chunks = da.random.random(size=(size,), chunks=(1000,))
+        size = 2_000
     else:
-        size = 200_000_000
-        random_arr = da.random.random(size=(size,), chunks=(6250000,))
-        random_arr_small_chunks = da.random.random(size=(size,), chunks=(10000,))
+        size = 20_000
+    Faker.seed(42)
+    rng = default_rng(seed=42)
+    fake = Faker(["en_US"])
 
-    random_arr.to_zarr(os.path.join(data_dir, "random.zarr"))
-    random_arr_small_chunks.to_zarr(os.path.join(data_dir, "random_sc.zarr"))
-
-    t1 = time.time()
-    print("** Created random data for array exercise in {:0.2f}s".format(t1 - t0))
+    synthetic_data = {
+        'Year': rng.integers(1990, 2000, size),
+        'UniqueCarrier': [fake.bothify(text='??', letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ') for _ in range(size)],
+        'AircraftRegistrationId': [fake.bothify(text='??-####', letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ') for _ in
+                                   range(size)],
+        'FlightNum': rng.integers(1, 2000, size),
+        'Distance': rng.integers(50, 5000, size)
+    }
+    if not LocalData.SYNTHETIC_CSV.exists():
+        os.mkdir(LocalData.SYNTHETIC_CSV)
+    pd.DataFrame(synthetic_data).set_index('Year').to_csv(LocalData.SYNTHETIC_CSV / 'synthetic.csv')
+    end = time.time()
+    print("** Created synthetic dataset! in {:0.2f}s**".format(end - start))
 
 
 def main(args=None):
     args = parse_args(args)
-    if args.dataset == "random" or args.dataset == "all":
-        random_array(args.small)
+    if args.dataset == "synthetic" or args.dataset == "all":
+        print("Creating synthetic dataset")
+        create_synthetic_dataset(args.small)
     if args.dataset == "flights" or args.dataset == "all":
+        print("Creating nyc flights dataset")
         flights(args.small)
 
 

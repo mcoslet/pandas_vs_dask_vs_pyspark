@@ -1,18 +1,8 @@
-from pyspark.sql import SparkSession, DataFrame
+from pandas import DataFrame
 from pyspark.sql.types import StructType, StructField, IntegerType, DateType, StringType, FloatType, DoubleType
 
 from src.main.a_utils.benchmark_function_time import timeit_decorator
-from src.main.a_utils.constants import LocalData
-
-spark = SparkSession.builder.appName("Grid Dynamic Talk").master("local[*]").getOrCreate()
-
-
-def read_csv(infer_schema: bool = False, schema=None) -> DataFrame:
-    if infer_schema:
-        return spark.read.csv(str(LocalData.FLIGHTS_DIR / "*.csv"), header=True)
-    if schema is not None:
-        return spark.read.csv(str(LocalData.FLIGHTS_DIR / "*.csv"), header=True, schema=schema)
-    raise ValueError("No schema provided")
+from src.main.ds_pyspark.a_utils import read_csv, read_json, read_parquet
 
 
 @timeit_decorator()
@@ -21,20 +11,36 @@ def read_csv_with_spark_inferschema_true():
 
 
 @timeit_decorator()
-def read_csv_with_spark_inferschema_false(schema):
+def read_csv_with_spark_inferschema_false(schema: StructType):
     read_csv(schema=schema)
 
 
+@timeit_decorator()
+def read_json_with_spark_inferschema_true():
+    read_json()
+
+
+@timeit_decorator()
+def read_json_with_spark_inferschema_false(schema: StructType):
+    read_json(schema=schema)
+
+
+@timeit_decorator()
+def read_parquet_with_spark_inferschema_true():
+    read_parquet()
+
+
+@timeit_decorator()
+def read_parquet_with_spark_inferschema_false(schema: StructType):
+    read_parquet(schema=schema)
+
+
+@timeit_decorator()
 def count_memory(df: DataFrame):
     df = df.cache().select(df.columns)
     size_in_bytes = df._jdf.queryExecution().optimizedPlan().stats().sizeInBytes()
     df.unpersist(blocking=True)
     print(size_in_bytes / (2 ** 20))
-
-
-@timeit_decorator()
-def filter_spark(df: DataFrame):
-    df.filter(df['Category'] == "Gaming")
 
 
 if __name__ == "__main__":
@@ -63,8 +69,9 @@ if __name__ == "__main__":
         StructField("Cancelled", IntegerType(), True),
         StructField("Diverted", IntegerType(), True)
     ])
-    df = read_csv(schema=schema)
-    print(f"Performance Benchmark PySpark for dataset with shape: {(df.count(), len(df.columns))}")
+
+    df = read_csv(infer_schema=True)
+    print(f"Reading Performance Benchmark PySpark for dataset with shape: {(df.count(), len(df.columns))}")
 
     print("read_csv_with_spark_inferschema_true: ")
     read_csv_with_spark_inferschema_true()
@@ -72,5 +79,14 @@ if __name__ == "__main__":
     print("read_csv_with_spark_inferschema_false: ")
     read_csv_with_spark_inferschema_false(schema=schema)
 
-    print("Memory count: ")
-    count_memory(df)
+    print("read_json_with_spark_inferschema_true: ")
+    read_json_with_spark_inferschema_false()
+
+    print("read_json_with_spark_inferschema_false: ")
+    read_json_with_spark_inferschema_false(schema=schema)
+
+    print("read_parquet_with_spark_inferschema_true: ")
+    read_parquet_with_spark_inferschema_true()
+
+    print("read_parquet_with_spark_inferschema_false: ")
+    read_parquet_with_spark_inferschema_false(schema=schema)

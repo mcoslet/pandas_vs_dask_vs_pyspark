@@ -172,4 +172,41 @@
 
 ---
 
-# Filtering a dataset with shape (500000, 10)
+# Filtering a dataset with shape (2611892, 23)
+
+## Pandas without pyarrow:
+
+### Easy Filtering Operation: Average execution time over 100 executions: 0.03201804516000266 seconds
+
+### Heavy Filtering Operation: Average execution time over 100 executions: 0.13326092010000137 seconds
+
+## Pandas without pyarrow:
+
+### Easy Filtering Operation: Average execution time over 100 executions: 0.11022296900999208 seconds
+
+### Heavy Filtering Operation: Average execution time over 100 executions: 0.09104865538996819 seconds
+
+---
+
+## Spark:
+
+### Easy Filtering Operation: Average execution time over 100 executions: 0.003712195639964193 seconds
+
+### Heavy Filtering Operation: Average execution time over 100 executions: 0.016095383579959162 seconds
+
+---
+
+## Dask without pyarrow:
+
+### Easy Filtering Operation: Average execution time over 100 executions: 0.0010012385899608488 seconds
+
+### Heavy Filtering Operation: Average execution time over 100 executions: 4.306517042020059 seconds
+
+## Dask with pyarrow:
+
+### Easy Filtering Operation: Average execution time over 100 executions: 0.0013169768600346287 seconds
+
+### Heavy Filtering Operation: Average execution time over 100 executions: 1.0344456204499874 seconds
+
+---
+
