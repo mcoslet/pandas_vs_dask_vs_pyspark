@@ -1,7 +1,7 @@
 import timeit
 
 
-def timeit_decorator(executions=2):
+def timeit_decorator(executions=100):
     """
     A decorator to measure the average execution time of a function over a set number of executions.
     Accepts a parameter for the number of executions to average over.

@@ -10,24 +10,40 @@ spark = (SparkSession
          .getOrCreate())
 
 
-def read_csv(infer_schema: bool = False, schema=None) -> DataFrame:
+def read_csv(infer_schema: bool = False, schema=None, action: bool = False) -> DataFrame:
+    df = None
     if infer_schema:
-        return spark.read.csv(str(LocalData.FLIGHTS_CSV / "*.csv"), header=True)
+        df = spark.read.csv(str(LocalData.FLIGHTS_CSV / "*.csv"), header=True)
     if schema is not None:
-        return spark.read.csv(str(LocalData.FLIGHTS_CSV / "*.csv"), header=True, schema=schema)
-    raise ValueError("No schema provided")
+        df = spark.read.csv(str(LocalData.FLIGHTS_CSV / "*.csv"), header=True, schema=schema)
+    if action and df is not None:
+        df.count()
+    if df is None:
+        raise ValueError("No schema provided")
+    return df
 
 
-def read_json(infer_schema: bool = False, schema=None) -> DataFrame:
+def read_json(infer_schema: bool = False, schema=None, action: bool = False) -> DataFrame:
+    df = None
     if infer_schema:
-        return spark.read.json(str(LocalData.FLIGHTS_JSON / "*.json"))
+        df = spark.read.json(str(LocalData.FLIGHTS_JSON / "*.json"))
     if schema is not None:
-        return spark.read.json(str(LocalData.FLIGHTS_JSON / "*.json"), schema=schema)
-    raise ValueError("No schema provided")
+        df = spark.read.json(str(LocalData.FLIGHTS_JSON / "*.json"), schema=schema)
+    if action and df is not None:
+        df.count()
+    if df is None:
+        raise ValueError("No schema provided")
+    return df
 
 
-def read_parquet(infer_schema: bool = False, schema=None) -> DataFrame:
+def read_parquet(infer_schema: bool = False, schema=None, action: bool = False) -> DataFrame:
+    df = None
     if infer_schema:
-        return spark.read.parquet(str(LocalData.FLIGHTS_PARQUET / "*.parquet"), header=True)
+        df = spark.read.parquet(str(LocalData.FLIGHTS_PARQUET / "*.parquet"), header=True)
     if schema is not None:
-        return spark.read.parquet(str(LocalData.FLIGHTS_PARQUET / "*.parquet"), header=True, schema=schema)
+        df = spark.read.parquet(str(LocalData.FLIGHTS_PARQUET / "*.parquet"), header=True, schema=schema)
+    if action and df is not None:
+        df.count()
+    if df is None:
+        raise ValueError("No schema provided")
+    return df

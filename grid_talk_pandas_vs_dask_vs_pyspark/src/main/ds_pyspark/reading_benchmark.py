@@ -6,33 +6,33 @@ from src.main.ds_pyspark.a_utils import read_csv, read_json, read_parquet
 
 
 @timeit_decorator()
-def read_csv_with_spark_inferschema_true():
-    read_csv(infer_schema=True)
+def read_csv_with_spark_inferschema_true(action: bool = False):
+    read_csv(infer_schema=True, action=action)
 
 
 @timeit_decorator()
-def read_csv_with_spark_inferschema_false(schema: StructType):
-    read_csv(schema=schema)
+def read_csv_with_spark_inferschema_false(schema: StructType, action: bool = False):
+    read_csv(schema=schema, action=action)
 
 
 @timeit_decorator()
-def read_json_with_spark_inferschema_true():
-    read_json()
+def read_json_with_spark_inferschema_true(action: bool = False):
+    read_json(infer_schema=True, action=action)
 
 
 @timeit_decorator()
-def read_json_with_spark_inferschema_false(schema: StructType):
-    read_json(schema=schema)
+def read_json_with_spark_inferschema_false(schema: StructType, action: bool = False):
+    read_json(schema=schema, action=action)
 
 
 @timeit_decorator()
-def read_parquet_with_spark_inferschema_true():
-    read_parquet()
+def read_parquet_with_spark_inferschema_true(action: bool = False):
+    read_parquet(action=action)
 
 
 @timeit_decorator()
-def read_parquet_with_spark_inferschema_false(schema: StructType):
-    read_parquet(schema=schema)
+def read_parquet_with_spark_inferschema_false(schema: StructType, action: bool = False):
+    read_parquet(schema=schema, action=action)
 
 
 @timeit_decorator()
@@ -78,28 +78,53 @@ if __name__ == "__main__":
     df_parquet_infer_schema = read_parquet(infer_schema=True)
     df_parquet_with_schema = read_parquet(schema=schema)
 
-    print(f"Reading Performance Benchmark PySpark for dataset with shape: {(df_csv_infer_schema.count(), len(df_csv_infer_schema.columns))}")
+    print(
+        f"Reading Performance Benchmark PySpark for dataset with shape: {(df_csv_infer_schema.count(), len(df_csv_infer_schema.columns))}")
 
-    print("read_csv_with_spark_inferschema_true: ")
+    print("read_csv_with_spark_inferschema_true, action False: ")
     read_csv_with_spark_inferschema_true()
     count_memory(df_csv_infer_schema)
 
-    print("read_csv_with_spark_inferschema_false: ")
+    print("read_csv_with_spark_inferschema_true, action True: ")
+    read_csv_with_spark_inferschema_true(action=True)
+    count_memory(df_csv_infer_schema)
+
+    print("read_csv_with_spark_inferschema_false, action False: ")
     read_csv_with_spark_inferschema_false(schema=schema)
     count_memory(df_csv_with_schema)
 
-    print("read_json_with_spark_inferschema_true: ")
-    read_json_with_spark_inferschema_false()
+    print("read_csv_with_spark_inferschema_false, action True: ")
+    read_csv_with_spark_inferschema_false(schema=schema, action=True)
+    count_memory(df_csv_with_schema)
+
+    print("read_json_with_spark_inferschema_true, action False: ")
+    read_json_with_spark_inferschema_true()
     count_memory(df_json_infer_schema)
 
-    print("read_json_with_spark_inferschema_false: ")
+    print("read_json_with_spark_inferschema_true, action True: ")
+    read_json_with_spark_inferschema_true(action=True)
+    count_memory(df_json_infer_schema)
+
+    print("read_json_with_spark_inferschema_false, action False: ")
     read_json_with_spark_inferschema_false(schema=schema)
     count_memory(df_json_with_schema)
 
-    print("read_parquet_with_spark_inferschema_true: ")
+    print("read_json_with_spark_inferschema_false, action True: ")
+    read_json_with_spark_inferschema_false(schema=schema, action=True)
+    count_memory(df_json_with_schema)
+
+    print("read_parquet_with_spark_inferschema_true, action False: ")
     read_parquet_with_spark_inferschema_true()
     count_memory(df_parquet_infer_schema)
 
-    print("read_parquet_with_spark_inferschema_false: ")
+    print("read_parquet_with_spark_inferschema_true, action True: ")
+    read_parquet_with_spark_inferschema_true(action=True)
+    count_memory(df_parquet_infer_schema)
+
+    print("read_parquet_with_spark_inferschema_false, action False: ")
     read_parquet_with_spark_inferschema_false(schema=schema)
+    count_memory(df_parquet_with_schema)
+
+    print("read_parquet_with_spark_inferschema_false, action True: ")
+    read_parquet_with_spark_inferschema_false(schema=schema, action=True)
     count_memory(df_parquet_with_schema)
