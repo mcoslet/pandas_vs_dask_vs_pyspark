@@ -1,5 +1,5 @@
 from pandas import DataFrame
-from pyspark.sql.types import StructType, StructField, IntegerType, DateType, StringType, FloatType, DoubleType
+from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType
 
 from src.main.a_utils.benchmark_function_time import timeit_decorator
 from src.main.ds_pyspark.a_utils import read_csv, read_json, read_parquet
@@ -27,7 +27,7 @@ def read_json_with_spark_inferschema_false(schema: StructType, action: bool = Fa
 
 @timeit_decorator()
 def read_parquet_with_spark_inferschema_true(action: bool = False):
-    read_parquet(action=action)
+    read_parquet(infer_schema=True, action=action)
 
 
 @timeit_decorator()
@@ -35,7 +35,6 @@ def read_parquet_with_spark_inferschema_false(schema: StructType, action: bool =
     read_parquet(schema=schema, action=action)
 
 
-@timeit_decorator()
 def count_memory(df: DataFrame):
     print("Count memory: ")
     df = df.cache().select(df.columns)
@@ -64,7 +63,7 @@ if __name__ == "__main__":
         StructField("DepDelay", DoubleType(), True),
         StructField("Origin", StringType(), True),
         StructField("Dest", StringType(), True),
-        StructField("Distance", DoubleType(), True),
+        StructField("Distance", IntegerType(), True),
         StructField("TaxiIn", DoubleType(), True),
         StructField("TaxiOut", DoubleType(), True),
         StructField("Cancelled", IntegerType(), True),

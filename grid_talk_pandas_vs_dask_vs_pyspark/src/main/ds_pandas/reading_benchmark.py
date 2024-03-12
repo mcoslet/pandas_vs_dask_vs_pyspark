@@ -52,7 +52,7 @@ if __name__ == "__main__":
     default_py_parquet_df = read_parquet()
 
     print(f"Reading Performance Benchmark Pandas for dataset with shape: {py_arrow_csv_df.shape}")
-
+    print(default_csv_df.Origin.value_counts().to_string())
     print("read_csv_with_pandas_pyarrow_engine: ")
     read_csv_with_pandas_pyarrow_engine()
     count_memory(py_arrow_csv_df)

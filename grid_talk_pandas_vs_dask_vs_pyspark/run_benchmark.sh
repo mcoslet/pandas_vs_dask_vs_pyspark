@@ -17,7 +17,6 @@ image_exists=$(docker images -q $IMAGE_NAME)
 
 if [[ -z "$image_exists" ]]; then
     echo "Image does not exist, building..."
-    # Build the Docker image
     docker build -t $IMAGE_NAME .
 else
     echo "Image already exists, skipping build."
@@ -26,5 +25,5 @@ fi
 SCRIPT_NAME=$1
 
 echo "Running $SCRIPT_NAME in the Docker container $CONTAINER_NAME."
-docker run --name $CONTAINER_NAME --cpus="2" --memory="10g" $IMAGE_NAME $SCRIPT_NAME
+docker run --rm --name $CONTAINER_NAME --cpus="2" --memory="10g" $IMAGE_NAME $SCRIPT_NAME
 

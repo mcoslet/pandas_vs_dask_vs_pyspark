@@ -7,11 +7,12 @@ from src.main.ds_pandas.a_utils import read_csv
 
 @timeit_decorator()
 def default_join(first_df: pd.DataFrame, second_df: pd.DataFrame) -> pd.DataFrame:
-    return first_df.merge(second_df, how="inner", left_index=True, right_index=True)
+    return pd.merge(first_df, second_df, how="inner", left_index=True, right_index=True)
 
 
 if __name__ == "__main__":
-    df = read_csv(use_py_arrow=True).set_index("Year")
-    second_df = pd.read_csv(LocalData.SYNTHETIC_CSV / "synthetic.csv").set_index("Year")
-    print(f"Join Performance Benchmark Pandas for dataset with shape: {df.shape} and {second_df.shape}")
-    default_join(df, second_df)
+    df = read_csv(use_py_arrow=True).set_index("Dest")
+    second_df = pd.read_csv(LocalData.SYNTHETIC_CSV / "synthetic.csv", dtype_backend="pyarrow", engine="pyarrow").set_index("Dest")
+    df_sample = df.sample(frac=0.15, random_state=42)
+    print(f"Join Performance Benchmark Pandas for dataset with shape: {df_sample.shape} and {second_df.shape}")
+    default_join(df_sample, second_df)

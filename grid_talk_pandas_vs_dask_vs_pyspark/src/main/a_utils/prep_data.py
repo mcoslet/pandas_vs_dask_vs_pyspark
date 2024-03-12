@@ -56,6 +56,14 @@ def flights(small=None):
     flightdir = os.path.join(data_dir, "nycflights")
     jsondir = os.path.join(data_dir, "flightjson")
     parquetdir = os.path.join(data_dir, "flightparquet")
+    pandas_dtype_schema = {
+        'AirTime': 'float64',
+        'CRSElapsedTime': 'float64',
+        'TailNum': 'string',
+        'TaxiIn': 'Int64',
+        'TaxiOut': 'Int64',
+        'Distance': 'Int64'
+    }
     if small is None:
         small = bool(os.environ.get("SMALL_DF", False))
 
@@ -92,6 +100,7 @@ def flights(small=None):
         for path in glob(os.path.join(data_dir, "nycflights", "*.csv")):
             prefix = os.path.splitext(os.path.basename(path))[0]
             df = pd.read_csv(path, nrows=n)
+            df = df.astype(pandas_dtype_schema)
             df.to_json(
                 os.path.join(jsondir, prefix + ".json"),
                 orient="records",
@@ -105,6 +114,7 @@ def flights(small=None):
         for path in glob(os.path.join(data_dir, "nycflights", "*.csv")):
             prefix = os.path.splitext(os.path.basename(path))[0]
             df = pd.read_csv(path, nrows=n)
+            df = df.astype(pandas_dtype_schema)
             df.to_parquet(
                 os.path.join(parquetdir, prefix + ".parquet")
             )
@@ -125,14 +135,26 @@ def create_synthetic_dataset(small):
     Faker.seed(42)
     rng = default_rng(seed=42)
     fake = Faker(["en_US"])
-
+    dest_airports = ['ORD', 'BOS', 'ATL', 'LAX', 'MIA', 'DFW', 'DCA', 'MCO', 'DTW', 'PIT',
+                     'SFO', 'FLL', 'CLT', 'DEN', 'CLE', 'STL', 'PBI', 'IAH', 'TPA', 'MSP',
+                     'SJU', 'BUF', 'CMH', 'CVG', 'RDU', 'GSO', 'ORF', 'PHX', 'BWI', 'ROC',
+                     'IND', 'RIC', 'IAD', 'BNA', 'MEM', 'MSY', 'SYR', 'LAS', 'MCI', 'RSW',
+                     'JAX', 'SEA', 'DAY', 'SLC', 'PWM', 'SAN', 'SRQ', 'PVD', 'MDW', 'PHL',
+                     'BTV', 'STT', 'GSP', 'HOU', 'BDL', 'SDF', 'DAB', 'CHS', 'PDX', 'MLB',
+                     'SNA', 'MKE', 'MHT', 'CAE', 'SAT', 'COS', 'BQN', 'SJC', 'ALB', 'AUS',
+                     'SAV', 'OMA', 'EGE', 'HNL', 'BGR', 'MYR', 'LWB', 'ORH', 'TYS', 'ROA',
+                     'HDN', 'PSE', 'CRW', 'ACK', 'BHM', 'ABE', 'ANC', 'CHO', 'SWF', 'MTJ',
+                     'EWR', 'ICT', 'ISP', 'JFK']
     synthetic_data = {
         'Year': rng.integers(1990, 2000, size),
         'UniqueCarrier': [fake.bothify(text='??', letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ') for _ in range(size)],
         'AircraftRegistrationId': [fake.bothify(text='??-####', letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ') for _ in
                                    range(size)],
         'FlightNum': rng.integers(1, 2000, size),
-        'Distance': rng.integers(50, 5000, size)
+        'Distance': rng.integers(50, 5000, size),
+        'Origin': [fake.bothify(text='???').upper() for _ in range(size)],
+        'Dest': rng.choice(dest_airports, size)
+
     }
     if not LocalData.SYNTHETIC_CSV.exists():
         os.mkdir(LocalData.SYNTHETIC_CSV)
